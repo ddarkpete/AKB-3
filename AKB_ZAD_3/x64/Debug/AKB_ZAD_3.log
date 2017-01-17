@@ -4,5 +4,4 @@
   Input.cpp
   AKB_ZAD_3.cpp
   Generating Code...
-  AKB_ZAD_3.vcxproj -> C:\Users\Piotr\documents\visual studio 2015\Projects\AKB_ZAD_3\x64\Debug\AKB_ZAD_3.exe
-  AKB_ZAD_3.vcxproj -> C:\Users\Piotr\documents\visual studio 2015\Projects\AKB_ZAD_3\x64\Debug\AKB_ZAD_3.pdb (Full PDB)
+c:\users\pete\source\repos\akb_3\akb_zad_3\akb_zad_3.cpp(231): error C4716: 'find_clique': must return a value

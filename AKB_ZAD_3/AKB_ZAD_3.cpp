@@ -264,8 +264,34 @@ int main()
 	graph_sequences = load_seqs(inputs, substr_len, 1 /*minimal_score*/);
 	graph = load_graph(graph_sequences);
 	graph_sorted = graphSorter(graph);
+	
+	//***************testowo do przysz³ej funkcji********************************** i nalezaloby w sumie przetestowac 
+
+	vector<Vertex> Clique;
 	for (int i = 0; i < graph_sorted.size(); i++)
 	{
+		if (i == 0)
+		{
+			Clique.push_back(graph_sorted[i]);// dodaje se pierwszy z posortowanej listy po najwiekszym stopniu verta
+		}
+		else//tu zagadka jakaœ pomocnicza lista dodanych i tam patrzymy czy s¹siady czy jak?
+		{
+			int analyzed_id = graph_sorted[i].vert_id;
+			int check_counter;
+			for (int j = 0; j < Clique.size(); j++)
+			{
+				if (std::find(Clique[j].neighbours.begin(), Clique[j].neighbours.end(), analyzed_id) != Clique[j].neighbours.end()) 
+				{//jeœli jest s¹siadem jednego z cz³onków kliki
+					check_counter++;
+				}
+				if (check_counter == Clique.size())//jak znajduje sie w s¹siedztwie wszystkich cz³onków kliki
+				{
+					Clique.push_back(graph_sorted[i]);
+				}
+			}
+
+
+		}
 
 	}
 	
