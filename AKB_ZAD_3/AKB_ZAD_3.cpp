@@ -62,7 +62,7 @@ vector<Input> load_instance()
 		cout << "Error! Can't open .fasta file." << endl;
 		system("pause");
 	}
-	cout << inputs.size() << "size" << endl;
+	//cout << inputs.size() << "size" << endl;
 	if (inp_file2.good())
 	{
 
@@ -170,7 +170,7 @@ vector<Sequence> load_seqs(vector<Input> instances, int len , int minimal)//w ma
 
 		}
 	}
-	return seqs;
+return seqs;
 }
 
 vector<Vertex> load_graph(vector<Sequence> Seqs)//to raczej bêdzie vector i przepisanie na jakiœ vector w mainie
@@ -188,7 +188,7 @@ vector<Vertex> load_graph(vector<Sequence> Seqs)//to raczej bêdzie vector i prze
 		id++;
 		Graph.push_back(new_vert);
 	}
-	for (std::vector<int>::size_type it = 0; it != Graph.size(); it++) 
+	for (std::vector<int>::size_type it = 0; it != Graph.size(); it++)
 	{
 		for (std::vector<int>::size_type itt = 0; itt != Graph.size(); itt++)
 		{
@@ -196,9 +196,9 @@ vector<Vertex> load_graph(vector<Sequence> Seqs)//to raczej bêdzie vector i prze
 			{
 				if (Graph[it].nucleos.find(Graph[itt].nucleos) != std::string::npos)
 				{
-					cout << "som takie same xD" << endl;
+					//cout << "som takie same xD" << endl;
 
-					if ( !(find(Graph[it].neighbours.begin(), Graph[it].neighbours.end(), Graph[itt].vert_id) != Graph[it].neighbours.end()) &&
+					if (!(find(Graph[it].neighbours.begin(), Graph[it].neighbours.end(), Graph[itt].vert_id) != Graph[it].neighbours.end()) &&
 						!(find(Graph[itt].neighbours.begin(), Graph[itt].neighbours.end(), Graph[it].vert_id) != Graph[itt].neighbours.end()))
 					{
 						Graph[itt].neighbours.push_back(Graph[it].vert_id);
@@ -213,7 +213,7 @@ vector<Vertex> load_graph(vector<Sequence> Seqs)//to raczej bêdzie vector i prze
 
 }
 
-vector<Vertex> graphSorter(vector<Vertex> graph) 
+vector<Vertex> graphSorter(vector<Vertex> graph)
 {
 	vector< Vertex > graph_copy = graph;
 	sort(graph_copy.begin(), graph_copy.end());
@@ -221,14 +221,14 @@ vector<Vertex> graphSorter(vector<Vertex> graph)
 	return graph_copy;
 }
 
-vector<Vertex> find_clique(vector<Vertex> graph, Vertex Analyzed, vector<Vertex> Clique)
+/*vector<Vertex> find_clique(vector<Vertex> graph, Vertex Analyzed, vector<Vertex> Clique)
 {
 	for (int i = 0; i < Analyzed.neighbours.size(); i++)
 	{
 
 	}
 
-}
+}*/
 
 
 int main()
@@ -240,7 +240,7 @@ int main()
 	int substr_len;
 	int minimal_score;
 	//Input inpp =  new Input;
-	
+
 	//cout << inputs.size()<<endl;
 	/*for (int i = 0; i < inputs.size(); i++)
 	{
@@ -264,11 +264,22 @@ int main()
 	graph_sequences = load_seqs(inputs, substr_len, 1 /*minimal_score*/);
 	graph = load_graph(graph_sequences);
 	graph_sorted = graphSorter(graph);
-	
+
 	//***************testowo do przysz³ej funkcji********************************** i nalezaloby w sumie przetestowac 
+	for (int i = 0; i < graph_sorted.size(); i++)
+	{
+		cout << graph_sorted[i].id << endl;
+		for (int j = 0; j < graph_sorted[i].neighbours.size(); j++)
+		{
+			cout << graph_sorted[i].neighbours[j] << " ";
+
+		}
+		cout << endl;
+
+	}
 
 	vector<Vertex> Clique;
-	for (int i = 0; i < graph_sorted.size(); i++)
+	for (int i = 0; i < graph_sorted.size(); i++)//znajdujemy nawinksz¹ klike ,  potrzeba mocniejsz¹ instancje z wieksz¹ iloœcia klik wtedy zaczynaj¹c od innego wierzcho³ka mo¿na dalej szukac
 	{
 		if (i == 0)
 		{
@@ -277,7 +288,7 @@ int main()
 		else//tu zagadka jakaœ pomocnicza lista dodanych i tam patrzymy czy s¹siady czy jak?
 		{
 			int analyzed_id = graph_sorted[i].vert_id;
-			int check_counter;
+			int check_counter = 0;
 			for (int j = 0; j < Clique.size(); j++)
 			{
 				if (std::find(Clique[j].neighbours.begin(), Clique[j].neighbours.end(), analyzed_id) != Clique[j].neighbours.end()) 
@@ -294,6 +305,11 @@ int main()
 		}
 
 	}
+	for (int i = 0; i < Clique.size(); i++)
+	{
+		cout << Clique[i].vert_id << " ";
+	}
+	cout << endl;
 	
 	system("pause");
     return 0;

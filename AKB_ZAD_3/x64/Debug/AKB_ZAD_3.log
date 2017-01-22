@@ -1,7 +1,3 @@
-﻿  stdafx.cpp
-  Vertex.cpp
-  Sequence.cpp
-  Input.cpp
-  AKB_ZAD_3.cpp
-  Generating Code...
-c:\users\pete\source\repos\akb_3\akb_zad_3\akb_zad_3.cpp(231): error C4716: 'find_clique': must return a value
+﻿  AKB_ZAD_3.cpp
+  AKB_ZAD_3.vcxproj -> C:\Users\Pete\Source\Repos\AKB_3\x64\Debug\AKB_ZAD_3.exe
+  AKB_ZAD_3.vcxproj -> C:\Users\Pete\Source\Repos\AKB_3\x64\Debug\AKB_ZAD_3.pdb (Partial PDB)
