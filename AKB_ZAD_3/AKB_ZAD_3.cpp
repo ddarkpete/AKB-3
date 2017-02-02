@@ -3,7 +3,7 @@
 
 #include "stdafx.h"
 
-//wyjebac z klasy input load , vector inputów dac wmainie funkcje load daj w mainie i chuj i czeœæ
+//TEST!!!!!!
 
 
 
@@ -128,26 +128,39 @@ vector<Sequence> load_seqs(vector<Input> instances, int len , int minimal)//w ma
 	Input temp;
 	for (std::vector<int>::size_type it = 0; it != instances.size(); it++) {
 		temp = instances[it];
+		int sequence_index = 0;
 		string sequence = temp.whole_sequence;
 		vector<int> scores = temp.quals;
 		for (int i = 0; i <= sequence.size() - len ; i++)
-		{	//TODO
-			//jakiœ while ¿eby puszcza³ od 4-7 i ograniczenie ze wzgledu na score np jakas
-			//zmienna pomocnicza ktora nie bedzie sie zwiekszac jak score bedzie za maly i czyli jeszcze jedna zmiennna
-			//puscic do funkcji
-			//i z fartem
+		{	
 			Sequence loaded;
 			string loaded_seq = "";
 			int len_help = 0;
 			int too_low = 0;
 			int iter = i;
+			int start_pos;
+			int end_pos;
 			while (len_help < len)
 			{
 				if (scores[iter] >= minimal)
 				{
-					loaded_seq += sequence[iter];
-					len_help++;
-					iter++;
+					if (loaded_seq == "")
+					{
+						start_pos = iter;
+						loaded_seq += sequence[iter];
+						len_help++;
+						//end_pos;
+						iter++;
+					}
+					//else if(ite)
+					else
+					{
+						loaded_seq += sequence[iter];
+						len_help++;
+						end_pos = iter;
+						iter++;
+					}
+					
 				}
 				else // jak score za ma³y
 				{
@@ -159,10 +172,13 @@ vector<Sequence> load_seqs(vector<Input> instances, int len , int minimal)//w ma
 			}
 			if (too_low < len / 2)
 			{
+				loaded.index_ = sequence_index;
+				sequence_index++;// czy to cos da? bo w sumie to mo¿na sie przesuwaæ po ca³osci o jeden ale chyba da bo jak tu bedzie 0 to nie bedziesz potem jechal w lewo np
+				//potem mozna sprawdzac jesli chodzi o prawo ze czy nastepna to koniec listy calosci lub 0 po prawej czyli koniec sekwencji
 				loaded.id = temp.input_id;
 				loaded.nucleos = loaded_seq;
-				loaded.start_pos = i;
-				loaded.end_pos = i + len - 1;
+				loaded.start_pos = start_pos;
+				loaded.end_pos = end_pos;
 				seqs.push_back(loaded);
 			}
 
@@ -188,17 +204,17 @@ vector<Vertex> load_graph(vector<Sequence> Seqs)//to raczej bêdzie vector i prze
 		id++;
 		Graph.push_back(new_vert);
 	}
-	for (std::vector<int>::size_type it = 0; it != Graph.size(); it++)
+	for (std::vector<int>::size_type it = 0; it != Graph.size(); it++)// tworzenie krawedzi w grafie
 	{
 		for (std::vector<int>::size_type itt = 0; itt != Graph.size(); itt++)
 		{
 			if (itt != it)
 			{
-				if (Graph[it].nucleos.find(Graph[itt].nucleos) != std::string::npos)
+				if ((Graph[it].nucleos.find(Graph[itt].nucleos) != std::string::npos) && Graph[it].id != Graph[itt].id)//jesli sekwencja zawiera sie w drugiej i s¹ z innych id
 				{
 					//cout << "som takie same xD" << endl;
 
-					if (!(find(Graph[it].neighbours.begin(), Graph[it].neighbours.end(), Graph[itt].vert_id) != Graph[it].neighbours.end()) &&
+					if (!(find(Graph[it].neighbours.begin(), Graph[it].neighbours.end(), Graph[itt].vert_id) != Graph[it].neighbours.end()) &&// jesli jest juz takie s¹siedztwo
 						!(find(Graph[itt].neighbours.begin(), Graph[itt].neighbours.end(), Graph[it].vert_id) != Graph[itt].neighbours.end()))
 					{
 						Graph[itt].neighbours.push_back(Graph[it].vert_id);
@@ -220,6 +236,8 @@ vector<Vertex> graphSorter(vector<Vertex> graph)
 	//reverse(graph_copy.begin(), graph_copy.end());
 	return graph_copy;
 }
+
+//vector<
 
 /*vector<Vertex> find_clique(vector<Vertex> graph, Vertex Analyzed, vector<Vertex> Clique)
 {
@@ -278,26 +296,27 @@ int main()
 
 	}
 
-	vector<Vertex> Clique;
+	vector<Vertex> LargestClique ;
 	for (int i = 0; i < graph_sorted.size(); i++)//znajdujemy nawinksz¹ klike ,  potrzeba mocniejsz¹ instancje z wieksz¹ iloœcia klik wtedy zaczynaj¹c od innego wierzcho³ka mo¿na dalej szukac
 	{
 		if (i == 0)
 		{
-			Clique.push_back(graph_sorted[i]);// dodaje se pierwszy z posortowanej listy po najwiekszym stopniu verta
+			LargestClique.push_back(graph_sorted[i]);// dodaje se pierwszy z posortowanej listy po najwiekszym stopniu verta
 		}
 		else//tu zagadka jakaœ pomocnicza lista dodanych i tam patrzymy czy s¹siady czy jak?
 		{
 			int analyzed_id = graph_sorted[i].vert_id;
 			int check_counter = 0;
-			for (int j = 0; j < Clique.size(); j++)
+			for (int j = 0; j < LargestClique.size(); j++)
 			{
-				if (std::find(Clique[j].neighbours.begin(), Clique[j].neighbours.end(), analyzed_id) != Clique[j].neighbours.end()) 
+				if (std::find(LargestClique[j].neighbours.begin(), LargestClique[j].neighbours.end(), analyzed_id) != LargestClique[j].neighbours.end()) 
 				{//jeœli jest s¹siadem jednego z cz³onków kliki
 					check_counter++;
 				}
-				if (check_counter == Clique.size())//jak znajduje sie w s¹siedztwie wszystkich cz³onków kliki
+				if (check_counter == LargestClique.size())//jak znajduje sie w s¹siedztwie wszystkich cz³onków kliki
 				{
-					Clique.push_back(graph_sorted[i]);
+					LargestClique.push_back(graph_sorted[i]);
+					break;
 				}
 			}
 
@@ -305,11 +324,15 @@ int main()
 		}
 
 	}
-	for (int i = 0; i < Clique.size(); i++)
+	for (int i = 0; i < LargestClique.size(); i++)
 	{
-		cout << Clique[i].vert_id << " ";
+		cout << LargestClique[i].vert_id << " ";
 	}
 	cout << endl;
+	cout << "Startowy motyw:" << endl;
+	cout << LargestClique[0].nucleos << endl;
+	
+
 	
 	system("pause");
     return 0;

@@ -1,3 +1,2 @@
 ﻿  AKB_ZAD_3.cpp
-  AKB_ZAD_3.vcxproj -> C:\Users\Pete\Source\Repos\AKB_3\x64\Debug\AKB_ZAD_3.exe
-  AKB_ZAD_3.vcxproj -> C:\Users\Pete\Source\Repos\AKB_3\x64\Debug\AKB_ZAD_3.pdb (Partial PDB)
+c:\users\pete\source\repos\akb_3\akb_zad_3\akb_zad_3.cpp(4): fatal error C1041: cannot open program database 'C:\Users\Pete\Source\Repos\AKB_3\AKB_ZAD_3\x64\Debug\vc141.pdb'; if multiple CL.EXE write to the same .PDB file, please use /FS
