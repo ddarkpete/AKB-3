@@ -126,6 +126,7 @@ vector<Sequence> load_seqs(vector<Input> instances, int len , int minimal)//w ma
 {
 	vector<Sequence> seqs;
 	Input temp;
+	int allindex=0;
 	for (std::vector<int>::size_type it = 0; it != instances.size(); it++) {
 		temp = instances[it];
 		int sequence_index = 0;
@@ -172,9 +173,11 @@ vector<Sequence> load_seqs(vector<Input> instances, int len , int minimal)//w ma
 			}
 			if (too_low < len / 2)
 			{
-				loaded.index_ = sequence_index;
+				loaded.index_inseq = sequence_index;
 				sequence_index++;// czy to cos da? bo w sumie to mo¿na sie przesuwaæ po ca³osci o jeden ale chyba da bo jak tu bedzie 0 to nie bedziesz potem jechal w lewo np
 				//potem mozna sprawdzac jesli chodzi o prawo ze czy nastepna to koniec listy calosci lub 0 po prawej czyli koniec sekwencji
+				loaded.index_inall = allindex;
+				allindex++;
 				loaded.id = temp.input_id;
 				loaded.nucleos = loaded_seq;
 				loaded.start_pos = start_pos;
@@ -229,14 +232,47 @@ vector<Vertex> load_graph(vector<Sequence> Seqs)//to raczej bêdzie vector i prze
 
 }
 
-vector<Vertex> graphSorter(vector<Vertex> graph)
+/*vector<Vertex> graphSorter(vector<Vertex> graph)
 {
 	vector< Vertex > graph_copy = graph;
 	sort(graph_copy.begin(), graph_copy.end());
 	//reverse(graph_copy.begin(), graph_copy.end());
 	return graph_copy;
-}
+}*/
 
+vector<Vertex> find_clique(vector<Vertex> vertexes_set)
+{
+	vector<Vertex> Clique;
+	for (int i = 0; i < vertexes_set.size(); i++)//znajdujemy nawinksz¹ klike ,  potrzeba mocniejsz¹ instancje z wieksz¹ iloœcia klik wtedy zaczynaj¹c od innego wierzcho³ka mo¿na dalej szukac
+	{
+		sort(vertexes_set.begin(), vertexes_set.end());
+		if (i == 0)
+		{
+			Clique.push_back(vertexes_set[i]);// dodaje se pierwszy z posortowanej listy po najwiekszym stopniu verta
+		}
+		else//tu zagadka jakaœ pomocnicza lista dodanych i tam patrzymy czy s¹siady czy jak?
+		{
+			int analyzed_id = vertexes_set[i].vert_id;
+			int check_counter = 0;
+			for (int j = 0; j < Clique.size(); j++)
+			{
+				if (std::find(Clique[j].neighbours.begin(), Clique[j].neighbours.end(), analyzed_id) != Clique[j].neighbours.end())
+				{//jeœli jest s¹siadem jednego z cz³onków kliki
+					check_counter++;
+				}
+				if (check_counter == Clique.size())//jak znajduje sie w s¹siedztwie wszystkich cz³onków kliki
+				{
+					Clique.push_back(vertexes_set[i]);
+					break;
+				}
+			}
+
+
+		}
+
+	}
+	return Clique;
+}
 //vector<
 
 /*vector<Vertex> find_clique(vector<Vertex> graph, Vertex Analyzed, vector<Vertex> Clique)
@@ -281,56 +317,92 @@ int main()
 	inputs = load_instance();
 	graph_sequences = load_seqs(inputs, substr_len, 1 /*minimal_score*/);
 	graph = load_graph(graph_sequences);
-	graph_sorted = graphSorter(graph);
+	vector<Vertex>graph_sorted = graph; 
+	sort(graph_sorted.begin(), graph_sorted.end());
 
 	//***************testowo do przysz³ej funkcji********************************** i nalezaloby w sumie przetestowac 
-	for (int i = 0; i < graph_sorted.size(); i++)
+	for (int i = 0; i < graph.size(); i++)
 	{
-		cout << graph_sorted[i].id << endl;
-		for (int j = 0; j < graph_sorted[i].neighbours.size(); j++)
+		cout << graph[i].id << endl;
+		for (int j = 0; j < graph[i].neighbours.size(); j++)
 		{
-			cout << graph_sorted[i].neighbours[j] << " ";
+			cout << graph[i].neighbours[j] << "* ";
 
 		}
 		cout << endl;
 
 	}
 
-	vector<Vertex> LargestClique ;
-	for (int i = 0; i < graph_sorted.size(); i++)//znajdujemy nawinksz¹ klike ,  potrzeba mocniejsz¹ instancje z wieksz¹ iloœcia klik wtedy zaczynaj¹c od innego wierzcho³ka mo¿na dalej szukac
-	{
-		if (i == 0)
-		{
-			LargestClique.push_back(graph_sorted[i]);// dodaje se pierwszy z posortowanej listy po najwiekszym stopniu verta
-		}
-		else//tu zagadka jakaœ pomocnicza lista dodanych i tam patrzymy czy s¹siady czy jak?
-		{
-			int analyzed_id = graph_sorted[i].vert_id;
-			int check_counter = 0;
-			for (int j = 0; j < LargestClique.size(); j++)
-			{
-				if (std::find(LargestClique[j].neighbours.begin(), LargestClique[j].neighbours.end(), analyzed_id) != LargestClique[j].neighbours.end()) 
-				{//jeœli jest s¹siadem jednego z cz³onków kliki
-					check_counter++;
-				}
-				if (check_counter == LargestClique.size())//jak znajduje sie w s¹siedztwie wszystkich cz³onków kliki
-				{
-					LargestClique.push_back(graph_sorted[i]);
-					break;
-				}
-			}
+	//vector<Vertex> LargestClique ;
+	//for (int i = 0; i < graph_sorted.size(); i++)//znajdujemy nawinksz¹ klike ,  potrzeba mocniejsz¹ instancje z wieksz¹ iloœcia klik wtedy zaczynaj¹c od innego wierzcho³ka mo¿na dalej szukac
+	//{
+	//	if (i == 0)
+	//	{
+	//		LargestClique.push_back(graph_sorted[i]);// dodaje se pierwszy z posortowanej listy po najwiekszym stopniu verta
+	//	}
+	//	else//tu zagadka jakaœ pomocnicza lista dodanych i tam patrzymy czy s¹siady czy jak?
+	//	{
+	//		int analyzed_id = graph_sorted[i].vert_id;
+	//		int check_counter = 0;
+	//		for (int j = 0; j < LargestClique.size(); j++)
+	//		{
+	//			if (std::find(LargestClique[j].neighbours.begin(), LargestClique[j].neighbours.end(), analyzed_id) != LargestClique[j].neighbours.end()) 
+	//			{//jeœli jest s¹siadem jednego z cz³onków kliki
+	//				check_counter++;
+	//			}
+	//			if (check_counter == LargestClique.size())//jak znajduje sie w s¹siedztwie wszystkich cz³onków kliki
+	//			{
+	//				LargestClique.push_back(graph_sorted[i]);
+	//				break;
+	//			}
+	//		}
 
 
-		}
+	//	}
 
-	}
-	for (int i = 0; i < LargestClique.size(); i++)
+	//}
+	/*for (int i = 0; i < LargestClique.size(); i++)
 	{
 		cout << LargestClique[i].vert_id << " ";
 	}
 	cout << endl;
 	cout << "Startowy motyw:" << endl;
-	cout << LargestClique[0].nucleos << endl;
+	cout << LargestClique[0].nucleos << endl;*/
+	int nres = 0;
+	int maxres = 4;
+	while (nres < maxres)
+	{
+		vector<Vertex> StartClique = find_clique(graph);
+		string act_mot = StartClique[0].nucleos;// tak nie wolno trzeba sekwencje z kliki z najwieksza liczba wystapien wziac c++ map!!!!
+		vector<Vertex> TempClique;
+		
+		while (true)// ti warunek zakonczenia rozszerzenia w lewo czyli dla wszystkich jak ju¿nie mo¿na
+		{
+			vector<Vertex> left;
+			for (int i = 0; i < StartClique.size(); i++)
+			{
+				if (StartClique[i].index_inseq != 0)
+				{
+					int left_ind = StartClique[i].index_inall - 1;
+					left.push_back(graph[left_ind]);
+
+				}
+				if (left.size() > 2)//jeœli jest sens szukaæ kliki
+				{
+					TempClique = find_clique(left);//szukamy kliki
+				}
+				//tutaj trzeba znalezc najczesiej wystepujacy w tej klice motyw tym mapem co wczeœniej
+				// i wtedy dodac go do motywu
+			}
+		}
+		while (true)// tu warunek zakonczenia rozszerzenia w prawo czyli albo za ma³a klika z tych z prawej albo konce sekwencji tych z prawej czyli e albo next w ca³ym grafie jest zerem
+			//albo next wiekszy niz rozmiar vectora grafu
+		{
+
+		}
+		
+
+	}
 	
 
 	

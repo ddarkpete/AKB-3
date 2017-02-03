@@ -14,7 +14,8 @@ public:
 	string nucleos;
 	int start_pos;
 	int end_pos;
-	int index_;
+	int index_inseq;
+	int index_inall;
 
 };
 
