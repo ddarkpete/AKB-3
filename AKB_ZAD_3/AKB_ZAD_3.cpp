@@ -370,13 +370,14 @@ int main()
 	cout << LargestClique[0].nucleos << endl;*/
 	int nres = 0;
 	int maxres = 4;
-	while (nres < maxres)
+	while (nres < maxres)//ile motywowow chcemy miec
 	{
 		vector<Vertex> StartClique = find_clique(graph);
 		string act_mot = StartClique[0].nucleos;// tak nie wolno trzeba sekwencje z kliki z najwieksza liczba wystapien wziac c++ map!!!!
 		vector<Vertex> TempClique;
-		
-		while (true)// ti warunek zakonczenia rozszerzenia w lewo czyli dla wszystkich jak ju¿nie mo¿na
+		bool left_side = true;
+		bool right_side = true;
+		while (left_side)// ti warunek zakonczenia rozszerzenia w lewo czyli dla wszystkich jak ju¿nie mo¿na
 		{
 			vector<Vertex> left;
 			for (int i = 0; i < StartClique.size(); i++)
@@ -390,12 +391,35 @@ int main()
 				if (left.size() > 2)//jeœli jest sens szukaæ kliki
 				{
 					TempClique = find_clique(left);//szukamy kliki
+					if(TempClique.size() > 2)
+					{
+						map<string sek, int x> occurance;
+						for(int v = 0; v < TempClique.size(); v++)
+						{
+							if(occurance.count(TempClique[i].nucleos) > 0)
+							{
+								occurance[TempClique[i].nucleos]++;
+							}
+							else
+							{
+								occurance[TempClique[i].nucleos];//incjalizacja
+								occurance[TempClique[i].nucleos]++;
+							}
+						}
+						auto most = max_element(occurance.begin(), occurance.end(),
+    					[](const pair<string, int>& p1, const pair<int, int>& p2) {
+        				return p1.second < p2.second; });
+					}
+				}
+				else
+				{
+					left_side =  false;
 				}
 				//tutaj trzeba znalezc najczesiej wystepujacy w tej klice motyw tym mapem co wczeœniej
 				// i wtedy dodac go do motywu
 			}
 		}
-		while (true)// tu warunek zakonczenia rozszerzenia w prawo czyli albo za ma³a klika z tych z prawej albo konce sekwencji tych z prawej czyli e albo next w ca³ym grafie jest zerem
+		while (right_side)// tu warunek zakonczenia rozszerzenia w prawo czyli albo za ma³a klika z tych z prawej albo konce sekwencji tych z prawej czyli e albo next w ca³ym grafie jest zerem
 			//albo next wiekszy niz rozmiar vectora grafu
 		{
 
