@@ -393,7 +393,7 @@ int main()
 					TempClique = find_clique(left);//szukamy kliki
 					if(TempClique.size() > 2)
 					{
-						map<string sek, int x> occurance;
+						map<string , int > occurance;
 						for(int v = 0; v < TempClique.size(); v++)
 						{
 							if(occurance.count(TempClique[i].nucleos) > 0)
