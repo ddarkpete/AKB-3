@@ -390,9 +390,10 @@ int main()
 				}
 				if (left.size() > 2)//jeœli jest sens szukaæ kliki
 				{
-					TempClique = find_clique(left);//szukamy kliki
+					TempClique = find_clique(left);//szukamy kliki , nie trzeba czyscic
 					if(TempClique.size() > 2)
 					{
+						StartClique = TempClique;
 						map<string , int > occurance;
 						for(int v = 0; v < TempClique.size(); v++)
 						{
@@ -406,9 +407,22 @@ int main()
 								occurance[TempClique[i].nucleos]++;
 							}
 						}
-						auto most = max_element(occurance.begin(), occurance.end(),
+						/*auto most = max_element(occurance.begin(), occurance.end(),
     					[](const pair<string, int>& p1, const pair<int, int>& p2) {
-        				return p1.second < p2.second; });
+        				return p1.second < p2.second; });*/
+						int currentMax = 0;
+						string arg_max = "";
+						for (auto it = occurance.cbegin(); it != occurance.cend(); ++it)
+						{
+							if (it->second > currentMax) {
+								arg_max = it->first;
+								currentMax = it->second;
+							}
+						}
+
+						string new_motif_el = arg_max;//jak sparsowaæ se now¹ czesc motywu z motywem?
+
+						
 					}
 				}
 				else
@@ -419,10 +433,59 @@ int main()
 				// i wtedy dodac go do motywu
 			}
 		}
+		TempClique.clear();//czyscimy ze smieci z lewa
 		while (right_side)// tu warunek zakonczenia rozszerzenia w prawo czyli albo za ma³a klika z tych z prawej albo konce sekwencji tych z prawej czyli e albo next w ca³ym grafie jest zerem
 			//albo next wiekszy niz rozmiar vectora grafu
 		{
+			vector<Vertex> right;
+			for (int i = 0; i < StartClique.size(); i++)
+			{
+				if (StartClique[i].index_inseq != 0)
+				{
+					int right_ind = StartClique[i].index_inall + 1;// plus jeden czy plus wincyj?
+					right.push_back(graph[right_ind]);
 
+				}
+				if (right.size() > 2)//jeœli jest sens szukaæ kliki
+				{
+					TempClique = find_clique(right);//szukamy kliki
+					if (TempClique.size() > 2)
+					{
+						map<string, int > rightoccurance;
+						for (int v = 0; v < TempClique.size(); v++)
+						{
+							if (rightoccurance.count(TempClique[i].nucleos) > 0)
+							{
+								rightoccurance[TempClique[i].nucleos]++;
+							}
+							else
+							{
+								rightoccurance[TempClique[i].nucleos];//incjalizacja
+								rightoccurance[TempClique[i].nucleos]++;
+							}
+						}
+						/*auto most = max_element(occurance.begin(), occurance.end(),
+						[](const pair<string, int>& p1, const pair<int, int>& p2) {
+						return p1.second < p2.second; });*/
+						int currentMax = 0;
+						string arg_max = "";
+						for (auto it = rightoccurance.cbegin(); it != rightoccurance.cend(); ++it)
+						{
+							if (it->second > currentMax) {
+								arg_max = it->first;
+								currentMax = it->second;
+							}
+						}
+
+						string new_motif_el = arg_max;//jak sparsowaæ se now¹ czesc motywu z motywem z 
+						//prawej?
+
+					}
+				}
+				else
+				{
+					right_side = false;
+				}
 		}
 		
 
