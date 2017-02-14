@@ -12,7 +12,7 @@ vector<Input> load_instance()
 	vector<Input> inputs;
 	fstream inp_file;
 	fstream inp_file2;
-	string open_file = "fasta";
+	string open_file = "test3";
 	string open_fasta;
 	string open_qual;
 	string line;
@@ -203,6 +203,8 @@ vector<Vertex> load_graph(vector<Sequence> Seqs)//to raczej bêdzie vector i prze
 		new_vert.nucleos = Seqs[it].nucleos;
 		new_vert.start_pos = Seqs[it].start_pos;
 		new_vert.end_pos = Seqs[it].end_pos;
+		new_vert.index_inall = Seqs[it].index_inall;
+		new_vert.index_inseq = Seqs[it].index_inseq;
 		new_vert.vert_id = id;
 		id++;
 		Graph.push_back(new_vert);
@@ -317,7 +319,7 @@ int main()
 	inputs = load_instance();
 	graph_sequences = load_seqs(inputs, substr_len, 1 /*minimal_score*/);
 	graph = load_graph(graph_sequences);
-	vector<Vertex>graph_sorted = graph; 
+	graph_sorted = graph;
 	sort(graph_sorted.begin(), graph_sorted.end());
 
 	//***************testowo do przysz³ej funkcji********************************** i nalezaloby w sumie przetestowac 
@@ -326,7 +328,8 @@ int main()
 		cout << graph[i].id << endl;
 		for (int j = 0; j < graph[i].neighbours.size(); j++)
 		{
-			cout << graph[i].neighbours[j] << "* ";
+			cout << graph[i].neighbours[j] << "* "<< endl;
+			cout << "******" << graph[graph[i].neighbours[j]].id << endl;
 
 		}
 		cout << endl;
@@ -368,12 +371,14 @@ int main()
 	cout << endl;
 	cout << "Startowy motyw:" << endl;
 	cout << LargestClique[0].nucleos << endl;*/
+	string act_mot;
 	int nres = 0;
 	int maxres = 4;
-	int windowsize = substr_len / 2;
+	int windowsize = 1;//substr_len / 2;
 	while (nres < maxres)//ile motywowow chcemy miec
 	{
 		vector<Vertex> StartClique = find_clique(graph);
+		vector<Vertex> StartCliqueR = StartClique;
 		map<string, int > main_occurance;
 		for (int v = 0; v < StartClique.size(); v++)
 		{
@@ -392,7 +397,7 @@ int main()
 		return p1.second < p2.second; });*/
 		int main_currentMax = 0;
 		string main_arg_max = "";
-		
+
 		for (auto it = main_occurance.cbegin(); it != main_occurance.cend(); ++it)
 		{
 			if (it->second > main_currentMax) {
@@ -400,44 +405,46 @@ int main()
 				main_currentMax = it->second;
 			}
 		}
-		string act_mot = main_arg_max;
+		act_mot = main_arg_max;
 		int past_len = act_mot.length();
 		vector<Vertex> TempClique;
 		bool left_side = true;
 		bool right_side = true;
 		while (left_side)// ti warunek zakonczenia rozszerzenia w lewo czyli dla wszystkich jak ju¿nie mo¿na
 		{
+			cout << "rozszerzanie w lewo" << endl;
 			vector<Vertex> left;
 			for (int i = 0; i < StartClique.size(); i++)
 			{
-				if (StartClique[i].index_inseq > windowsize && StartClique[i].index_inall > windowsize)
+				if (StartClique[i].index_inall - windowsize >= 0 && StartClique[i].id == graph[StartClique[i].index_inall - windowsize].id)
 				{
 					int left_ind = StartClique[i].index_inall - windowsize;
 					left.push_back(graph[left_ind]);
 
 				}
-				if (left.size() > 2)//jeœli jest sens szukaæ kliki
+			}
+				if (left.size() > 1)//jeœli jest sens szukaæ kliki
 				{
 					TempClique = find_clique(left);//szukamy kliki , nie trzeba czyscic
-					if(TempClique.size() > 2)
+					if (TempClique.size() > 1)
 					{
 						StartClique = TempClique;
-						map<string , int > occurance;
-						for(int v = 0; v < TempClique.size(); v++)
+						map<string, int > occurance;
+						for (int v = 0; v < TempClique.size(); v++)
 						{
-							if(occurance.count(TempClique[i].nucleos) > 0)
+							if (occurance.count(TempClique[v].nucleos) > 0)
 							{
-								occurance[TempClique[i].nucleos]++;
+								occurance[TempClique[v].nucleos]++;
 							}
 							else
 							{
-								occurance[TempClique[i].nucleos];//incjalizacja
-								occurance[TempClique[i].nucleos]++;
+								occurance[TempClique[v].nucleos];//incjalizacja
+								occurance[TempClique[v].nucleos]++;
 							}
 						}
 						/*auto most = max_element(occurance.begin(), occurance.end(),
-    					[](const pair<string, int>& p1, const pair<int, int>& p2) {
-        				return p1.second < p2.second; });*/
+						[](const pair<string, int>& p1, const pair<int, int>& p2) {
+						return p1.second < p2.second; });*/
 						int currentMax = 0;
 						string arg_max = "";
 						for (auto it = occurance.cbegin(); it != occurance.cend(); ++it)
@@ -447,51 +454,74 @@ int main()
 								currentMax = it->second;
 							}
 						}
+						for (int i = windowsize; i >= 0; i--)
+						{
+							if (i == 0)
+							{
+								act_mot = arg_max + act_mot;
+							}
 
-						string new_motif_el = arg_max;//jak sparsowaæ se now¹ czesc motywu z motywem?
+							string submotif_sub = arg_max.substr(i,arg_max.length());
+							string motif_sub = act_mot.substr(0,arg_max.length() - i);
+							if (submotif_sub == motif_sub)
+							{
+								act_mot = arg_max.substr(0,i) + act_mot;
+								break;
+							}
+
+						}
+
+						//jak sparsowaæ se now¹ czesc motywu z motywem?
 						// tutaj for porównuj¹cy aktuany motyw(ale tylko rozmiar okna) z dodawanym  podci¹giem
 						// to samo z prawej strony
 						//jak sie nic nie zgadza to dodaj ca³y podciag
 
-						
+
+
 					}
+					else left_side = false;
 				}
 				else
 				{
-					left_side =  false;
+					left_side = false;
 				}
-				
-			}
+
+			
 		}
 		TempClique.clear();//czyscimy ze smieci z lewa
+		StartClique = StartCliqueR;
 		while (right_side)// tu warunek zakonczenia rozszerzenia w prawo czyli albo za ma³a klika z tych z prawej albo konce sekwencji tych z prawej czyli e albo next w ca³ym grafie jest zerem
 			//albo next wiekszy niz rozmiar vectora grafu
 		{
+			cout << "rozszerzanie w prawo" << endl;
 			vector<Vertex> right;
 			for (int i = 0; i < StartClique.size(); i++)
 			{
-				if (StartClique[i].index_inseq != 0)
+				if (StartClique[i].index_inall + windowsize < graph.size() && StartClique[i].id == graph[ StartClique[i].index_inall + windowsize ].id )
 				{
-					int right_ind = StartClique[i].index_inall + 1;// plus jeden czy plus wincyj?
+					int right_ind = StartClique[i].index_inall + windowsize;// plus jeden czy plus wincyj?
 					right.push_back(graph[right_ind]);
 
 				}
-				if (right.size() > 2)//jeœli jest sens szukaæ kliki
+			}
+				if (right.size() > 1)//jeœli jest sens szukaæ kliki
 				{
+					//cout << "jest sens" << endl;
 					TempClique = find_clique(right);//szukamy kliki
-					if (TempClique.size() > 2)
+					if (TempClique.size() > 1)
 					{
+						StartClique = TempClique;
 						map<string, int > rightoccurance;
 						for (int v = 0; v < TempClique.size(); v++)
 						{
-							if (rightoccurance.count(TempClique[i].nucleos) > 0)
+							if (rightoccurance.count(TempClique[v].nucleos) > 0)
 							{
-								rightoccurance[TempClique[i].nucleos]++;
+								rightoccurance[TempClique[v].nucleos]++;
 							}
 							else
 							{
-								rightoccurance[TempClique[i].nucleos];//incjalizacja
-								rightoccurance[TempClique[i].nucleos]++;
+								rightoccurance[TempClique[v].nucleos];//incjalizacja
+								rightoccurance[TempClique[v].nucleos]++;
 							}
 						}
 						/*auto most = max_element(occurance.begin(), occurance.end(),
@@ -507,28 +537,50 @@ int main()
 							}
 						}
 
-						string new_motif_el = arg_max;//jak sparsowaæ se now¹ czesc motywu z motywem z 
+						for (int i = windowsize; i >= 0; i--)
+						{
+							if (i == 0)
+							{
+								act_mot = act_mot + arg_max.substr(i,arg_max.length()) ;
+							}
+							//string submotif_sub = arg_max.substr(i, arg_max.length());
+							//string motif_sub = act_mot.substr(0, arg_max.length() - i);
+
+							string submotif_sub = arg_max.substr(0, arg_max.length() - i );
+							string motif_sub = act_mot.substr( act_mot.length() - (arg_max.length() - i), act_mot.length());
+							if (submotif_sub == motif_sub)
+							{
+								act_mot =  act_mot + arg_max;
+								break;
+							}
+
+						}
+
+						//jak sparsowaæ se now¹ czesc motywu z motywem z 
 						//prawej?
 						//jak sparsowaæ se now¹ czesc motywu z motywem?
 						// tutaj for porównuj¹cy aktuany motyw(ale tylko rozmiar okna) z dodawanym  podci¹giem
 						// to samo z prawej strony
 						// jak sie nic nie zgadza no to dodajesz ca³y
+						right.clear();
 
 					}
+					else right_side = false;
 				}
 				else
 				{
 					right_side = false;
 				}
+			
+
+
 		}
-		
 
+
+		cout << "********* ACT **************" << act_mot << endl;
+		system("pause");
+		return 0;
 	}
-	
-
-	
-	system("pause");
-    return 0;
 }
 //wierzcholek z najwieksz¹ liczba sasiadow jako pocz¹tek kliki
 //pierwszy s¹siad tez do kliki
