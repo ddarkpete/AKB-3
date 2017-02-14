@@ -370,10 +370,38 @@ int main()
 	cout << LargestClique[0].nucleos << endl;*/
 	int nres = 0;
 	int maxres = 4;
+	int windowsize = substr_len / 2;
 	while (nres < maxres)//ile motywowow chcemy miec
 	{
 		vector<Vertex> StartClique = find_clique(graph);
-		string act_mot = StartClique[0].nucleos;// tak nie wolno trzeba sekwencje z kliki z najwieksza liczba wystapien wziac c++ map!!!!
+		map<string, int > main_occurance;
+		for (int v = 0; v < StartClique.size(); v++)
+		{
+			if (main_occurance.count(StartClique[v].nucleos) > 0)
+			{
+				main_occurance[StartClique[v].nucleos]++;
+			}
+			else
+			{
+				main_occurance[StartClique[v].nucleos];//incjalizacja
+				main_occurance[StartClique[v].nucleos]++;
+			}
+		}
+		/*auto most = max_element(occurance.begin(), occurance.end(),
+		[](const pair<string, int>& p1, const pair<int, int>& p2) {
+		return p1.second < p2.second; });*/
+		int main_currentMax = 0;
+		string main_arg_max = "";
+		
+		for (auto it = main_occurance.cbegin(); it != main_occurance.cend(); ++it)
+		{
+			if (it->second > main_currentMax) {
+				main_arg_max = it->first;
+				main_currentMax = it->second;
+			}
+		}
+		string act_mot = main_arg_max;
+		int past_len = act_mot.length();
 		vector<Vertex> TempClique;
 		bool left_side = true;
 		bool right_side = true;
@@ -382,9 +410,9 @@ int main()
 			vector<Vertex> left;
 			for (int i = 0; i < StartClique.size(); i++)
 			{
-				if (StartClique[i].index_inseq != 0)
+				if (StartClique[i].index_inseq > windowsize && StartClique[i].index_inall > windowsize)
 				{
-					int left_ind = StartClique[i].index_inall - 1;
+					int left_ind = StartClique[i].index_inall - windowsize;
 					left.push_back(graph[left_ind]);
 
 				}
@@ -421,6 +449,9 @@ int main()
 						}
 
 						string new_motif_el = arg_max;//jak sparsowaæ se now¹ czesc motywu z motywem?
+						// tutaj for porównuj¹cy aktuany motyw(ale tylko rozmiar okna) z dodawanym  podci¹giem
+						// to samo z prawej strony
+						//jak sie nic nie zgadza to dodaj ca³y podciag
 
 						
 					}
@@ -429,8 +460,7 @@ int main()
 				{
 					left_side =  false;
 				}
-				//tutaj trzeba znalezc najczesiej wystepujacy w tej klice motyw tym mapem co wczeœniej
-				// i wtedy dodac go do motywu
+				
 			}
 		}
 		TempClique.clear();//czyscimy ze smieci z lewa
@@ -479,6 +509,10 @@ int main()
 
 						string new_motif_el = arg_max;//jak sparsowaæ se now¹ czesc motywu z motywem z 
 						//prawej?
+						//jak sparsowaæ se now¹ czesc motywu z motywem?
+						// tutaj for porównuj¹cy aktuany motyw(ale tylko rozmiar okna) z dodawanym  podci¹giem
+						// to samo z prawej strony
+						// jak sie nic nie zgadza no to dodajesz ca³y
 
 					}
 				}
