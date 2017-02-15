@@ -12,7 +12,7 @@ vector<Input> load_instance()
 	vector<Input> inputs;
 	fstream inp_file;
 	fstream inp_file2;
-	string open_file = "test3";
+	string open_file = "002";
 	string open_fasta;
 	string open_qual;
 	string line;
@@ -75,7 +75,7 @@ vector<Input> load_instance()
 				if (line2 != inputs[x].input_id)
 				{
 					cout << line2 << "Error! .fasta does not match .qual file." << endl;
-					cout << inputs[x].input_id;
+					cout << inputs[x].input_id << endl;;
 					cout << " " << x;
 					system("pause");
 				}
@@ -423,10 +423,10 @@ int main()
 
 				}
 			}
-				if (left.size() > 1)//jeœli jest sens szukaæ kliki
+				if (left.size() > 2)//jeœli jest sens szukaæ kliki
 				{
 					TempClique = find_clique(left);//szukamy kliki , nie trzeba czyscic
-					if (TempClique.size() > 1)
+					if (TempClique.size() > 2)
 					{
 						StartClique = TempClique;
 						map<string, int > occurance;
@@ -504,11 +504,11 @@ int main()
 
 				}
 			}
-				if (right.size() > 1)//jeœli jest sens szukaæ kliki
+				if (right.size() > 2)//jeœli jest sens szukaæ kliki
 				{
 					//cout << "jest sens" << endl;
 					TempClique = find_clique(right);//szukamy kliki
-					if (TempClique.size() > 1)
+					if (TempClique.size() > 2)
 					{
 						StartClique = TempClique;
 						map<string, int > rightoccurance;
