@@ -79,28 +79,23 @@ vector<Input> load_instance()
 					cout << " " << x;
 					system("pause");
 				}
-				//else if (x != 0) x++;
 			}
 			else if (line2.size() > 0)
 			{
 				string num = "";
 				int i = 0;
-				//cout << line2 << endl;
-
+				
 				while (i < line2.size() - 1)
 				{
-					//cout << "tu sie jebie" << endl;
 					if (line2[i] == ' ')
 					{
 						i++;
-						//cout << "Dupa" << endl;
 						continue;
 					}
 					else
 					{
 						num = line2[i];
 						num += line2[i + 1];
-						//cout << num << " " << i << endl;
 						inputs[x].quals.push_back(atoi(num.c_str()));
 						num = "";
 						i += 2;
@@ -132,8 +127,9 @@ vector<Sequence> load_seqs(vector<Input> instances, int len , int minimal)//w ma
 		int sequence_index = 0;
 		string sequence = temp.whole_sequence;
 		vector<int> scores = temp.quals;
-		for (int i = 0; i <= sequence.size() - len ; i++)
+		for (int i = 0; i <= sequence.size() - len - 1 ; i++)
 		{	
+			//cout << sequence.size() - len << endl;
 			Sequence loaded;
 			string loaded_seq = "";
 			int len_help = 0;
@@ -149,6 +145,8 @@ vector<Sequence> load_seqs(vector<Input> instances, int len , int minimal)//w ma
 					{
 						start_pos = iter;
 						loaded_seq += sequence[iter];
+						//cout << len_help << endl;
+
 						len_help++;
 						//end_pos;
 						iter++;
@@ -156,9 +154,11 @@ vector<Sequence> load_seqs(vector<Input> instances, int len , int minimal)//w ma
 					//else if(ite)
 					else
 					{
-						loaded_seq += sequence[iter];
+						loaded_seq += sequence[i];
+						//cout << len_help << endl;
+
 						len_help++;
-						end_pos = iter;
+						end_pos = i;
 						iter++;
 					}
 					
@@ -166,8 +166,10 @@ vector<Sequence> load_seqs(vector<Input> instances, int len , int minimal)//w ma
 				else // jak score za ma³y
 				{
 					too_low++;
+					//cout << len_help << endl;
 					len_help++;
 					iter++;
+					
 				}
 				
 			}
@@ -323,7 +325,7 @@ int main()
 	sort(graph_sorted.begin(), graph_sorted.end());
 
 	//***************testowo do przysz³ej funkcji********************************** i nalezaloby w sumie przetestowac 
-	for (int i = 0; i < graph.size(); i++)
+	/*for (int i = 0; i < graph.size(); i++)
 	{
 		cout << graph[i].id << endl;
 		for (int j = 0; j < graph[i].neighbours.size(); j++)
@@ -334,7 +336,7 @@ int main()
 		}
 		cout << endl;
 
-	}
+	}*/
 
 	//vector<Vertex> LargestClique ;
 	//for (int i = 0; i < graph_sorted.size(); i++)//znajdujemy nawinksz¹ klike ,  potrzeba mocniejsz¹ instancje z wieksz¹ iloœcia klik wtedy zaczynaj¹c od innego wierzcho³ka mo¿na dalej szukac
@@ -406,6 +408,7 @@ int main()
 			}
 		}
 		act_mot = main_arg_max;
+		cout << main_arg_max << endl;
 		int past_len = act_mot.length();
 		vector<Vertex> TempClique;
 		bool left_side = true;
@@ -470,6 +473,7 @@ int main()
 							}
 
 						}
+						cout << arg_max << endl;
 
 						//jak sparsowaæ se now¹ czesc motywu z motywem?
 						// tutaj for porównuj¹cy aktuany motyw(ale tylko rozmiar okna) z dodawanym  podci¹giem
@@ -562,6 +566,7 @@ int main()
 						// tutaj for porównuj¹cy aktuany motyw(ale tylko rozmiar okna) z dodawanym  podci¹giem
 						// to samo z prawej strony
 						// jak sie nic nie zgadza no to dodajesz ca³y
+						cout << arg_max << endl;
 						right.clear();
 
 					}
