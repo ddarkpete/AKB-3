@@ -9,6 +9,7 @@
 
 vector<Input> load_instance()
 {
+	
 	vector<Input> inputs;
 	fstream inp_file;
 	fstream inp_file2;
@@ -122,7 +123,8 @@ vector<Sequence> load_seqs(vector<Input> instances, int len , int minimal)//w ma
 	vector<Sequence> seqs;
 	Input temp;
 	int allindex=0;
-	for (std::vector<int>::size_type it = 0; it != instances.size(); it++) {
+	for (std::vector<int>::size_type it = 0; it != instances.size(); it++) 
+	{
 		temp = instances[it];
 		int sequence_index = 0;
 		string sequence = temp.whole_sequence;
@@ -196,9 +198,12 @@ vector<Sequence> load_seqs(vector<Input> instances, int len , int minimal)//w ma
 		
 
 		}
+		
 	}
 return seqs;
 }
+
+
 
 vector<Vertex> load_graph(vector<Sequence> Seqs)//to raczej bêdzie vector i przepisanie na jakiœ vector w mainie
 {
@@ -242,18 +247,12 @@ vector<Vertex> load_graph(vector<Sequence> Seqs)//to raczej bêdzie vector i prze
 
 }
 
-/*vector<Vertex> graphSorter(vector<Vertex> graph)
-{
-	vector< Vertex > graph_copy = graph;
-	sort(graph_copy.begin(), graph_copy.end());
-	//reverse(graph_copy.begin(), graph_copy.end());
-	return graph_copy;
-}*/
+
 
 vector<Vertex> find_clique(vector<Vertex> vertexes_set)
 {
 	vector<Vertex> Clique;
-	for (int i = 0; i < vertexes_set.size(); i++)//znajdujemy nawinksz¹ klike ,  potrzeba mocniejsz¹ instancje z wieksz¹ iloœcia klik wtedy zaczynaj¹c od innego wierzcho³ka mo¿na dalej szukac
+	for (int i = 0; i < vertexes_set.size(); i++)
 	{
 		sort(vertexes_set.begin(), vertexes_set.end());
 		if (i == 0)
@@ -283,16 +282,15 @@ vector<Vertex> find_clique(vector<Vertex> vertexes_set)
 	}
 	return Clique;
 }
-//vector<
 
-/*vector<Vertex> find_clique(vector<Vertex> graph, Vertex Analyzed, vector<Vertex> Clique)
-{
-	for (int i = 0; i < Analyzed.neighbours.size(); i++)
-	{
 
+struct compare {
+	bool operator()(const std::string& first, const std::string& second) {
+		return first.size() > second.size();
 	}
+};
 
-}*/
+HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
 
 
 int main()
@@ -301,6 +299,7 @@ int main()
 	vector<Sequence> graph_sequences;
 	vector<Vertex> graph;
 	vector<Vertex> graph_sorted;
+	vector<string> results;
 	int substr_len;
 	int minimal_score;
 	//Input inpp =  new Input;
@@ -311,81 +310,50 @@ int main()
 		cout << inputs[i].input_id<<endl;
 		cout << inputs[i].whole_sequence << endl;
 	}*/
-	cout << "Type minimal qual score: ";
+	cout << "Prosze podac minimalny qual: ";
 	cin >> minimal_score;
 	cout << endl;
-	cout << "Type lenght of sequences substrings (4-7): ";
+	cout << "Prosze podac dlugosc podciagow (4-7): ";
 	while (true)
 	{
 		cin >> substr_len;
 		if (substr_len < 4 || substr_len > 7)
 		{
-			cout << "Please type lenght of substrings(4-7)" << endl;
+			cout << "Prosze podac prawidlowa dlugosc podciagow(4-7)" << endl;
 		}
 		else break;
 	}
 	inputs = load_instance();
-	graph_sequences = load_seqs(inputs, substr_len, 1 /*minimal_score*/);
+
+	for (int it = 0; it < inputs.size(); it++)
+	{
+		inputs[it].sequence_with_del = "";
+		for (int c = 0; c < inputs[it].whole_sequence.size(); c++)
+		{
+			if (inputs[it].quals[c] >= minimal_score)
+			{
+				inputs[it].sequence_with_del = inputs[it].sequence_with_del + inputs[it].whole_sequence[c];
+			}
+		}
+	}
+
+	
+
+
+	graph_sequences = load_seqs(inputs, substr_len,  minimal_score);
 	graph = load_graph(graph_sequences);
 	graph_sorted = graph;
 	sort(graph_sorted.begin(), graph_sorted.end());
 
-	//***************testowo do przysz³ej funkcji********************************** i nalezaloby w sumie przetestowac 
-	/*for (int i = 0; i < graph.size(); i++)
-	{
-		cout << graph[i].id << endl;
-		for (int j = 0; j < graph[i].neighbours.size(); j++)
-		{
-			cout << graph[i].neighbours[j] << "* "<< endl;
-			cout << "******" << graph[graph[i].neighbours[j]].id << endl;
 
-		}
-		cout << endl;
-
-	}*/
-
-	//vector<Vertex> LargestClique ;
-	//for (int i = 0; i < graph_sorted.size(); i++)//znajdujemy nawinksz¹ klike ,  potrzeba mocniejsz¹ instancje z wieksz¹ iloœcia klik wtedy zaczynaj¹c od innego wierzcho³ka mo¿na dalej szukac
-	//{
-	//	if (i == 0)
-	//	{
-	//		LargestClique.push_back(graph_sorted[i]);// dodaje se pierwszy z posortowanej listy po najwiekszym stopniu verta
-	//	}
-	//	else//tu zagadka jakaœ pomocnicza lista dodanych i tam patrzymy czy s¹siady czy jak?
-	//	{
-	//		int analyzed_id = graph_sorted[i].vert_id;
-	//		int check_counter = 0;
-	//		for (int j = 0; j < LargestClique.size(); j++)
-	//		{
-	//			if (std::find(LargestClique[j].neighbours.begin(), LargestClique[j].neighbours.end(), analyzed_id) != LargestClique[j].neighbours.end()) 
-	//			{//jeœli jest s¹siadem jednego z cz³onków kliki
-	//				check_counter++;
-	//			}
-	//			if (check_counter == LargestClique.size())//jak znajduje sie w s¹siedztwie wszystkich cz³onków kliki
-	//			{
-	//				LargestClique.push_back(graph_sorted[i]);
-	//				break;
-	//			}
-	//		}
-
-
-	//	}
-
-	//}
-	/*for (int i = 0; i < LargestClique.size(); i++)
-	{
-		cout << LargestClique[i].vert_id << " ";
-	}
-	cout << endl;
-	cout << "Startowy motyw:" << endl;
-	cout << LargestClique[0].nucleos << endl;*/
+	
 	string act_mot;
 	int nres = 0;
-	int maxres = 4;
+	int maxres = 6;
 	int windowsize = 1;//substr_len / 2;
 	while (nres < maxres)//ile motywowow chcemy miec
 	{
-		vector<Vertex> StartClique = find_clique(graph);
+		vector<Vertex> StartClique = find_clique(graph_sorted);
 		vector<Vertex> StartCliqueR = StartClique;
 		map<string, int > main_occurance;
 		for (int v = 0; v < StartClique.size(); v++)
@@ -400,9 +368,6 @@ int main()
 				main_occurance[StartClique[v].nucleos]++;
 			}
 		}
-		/*auto most = max_element(occurance.begin(), occurance.end(),
-		[](const pair<string, int>& p1, const pair<int, int>& p2) {
-		return p1.second < p2.second; });*/
 		int main_currentMax = 0;
 		string main_arg_max = "";
 
@@ -419,6 +384,9 @@ int main()
 		vector<Vertex> TempClique;
 		bool left_side = true;
 		bool right_side = true;
+		
+		
+		
 		while (left_side)// ti warunek zakonczenia rozszerzenia w lewo czyli dla wszystkich jak ju¿nie mo¿na
 		{
 			cout << "rozszerzanie w lewo" << endl;
@@ -451,9 +419,6 @@ int main()
 								occurance[TempClique[v].nucleos]++;
 							}
 						}
-						/*auto most = max_element(occurance.begin(), occurance.end(),
-						[](const pair<string, int>& p1, const pair<int, int>& p2) {
-						return p1.second < p2.second; });*/
 						int currentMax = 0;
 						string arg_max = "";
 						for (auto it = occurance.cbegin(); it != occurance.cend(); ++it)
@@ -483,12 +448,7 @@ int main()
 						}
 						cout << arg_max << endl;
 
-						//jak sparsowaæ se now¹ czesc motywu z motywem?
-						// tutaj for porównuj¹cy aktuany motyw(ale tylko rozmiar okna) z dodawanym  podci¹giem
-						// to samo z prawej strony
-						//jak sie nic nie zgadza to dodaj ca³y podciag
-
-
+						
 
 					}
 					else left_side = false;
@@ -502,6 +462,9 @@ int main()
 		}
 		TempClique.clear();//czyscimy ze smieci z lewa
 		StartClique = StartCliqueR;
+		
+		
+		
 		while (right_side)// tu warunek zakonczenia rozszerzenia w prawo czyli albo za ma³a klika z tych z prawej albo konce sekwencji tych z prawej czyli e albo next w ca³ym grafie jest zerem
 			//albo next wiekszy niz rozmiar vectora grafu
 		{
@@ -554,7 +517,6 @@ int main()
 							if (i == 0)
 							{
 								act_mot = act_mot + arg_max.substr(i,arg_max.length()) ;
-								cout << act_mot <<"ca³osc"<< endl;
 							}
 							//string submotif_sub = arg_max.substr(i, arg_max.length());
 							//string motif_sub = act_mot.substr(0, arg_max.length() - i);
@@ -573,12 +535,6 @@ int main()
 
 						}
 
-						//jak sparsowaæ se now¹ czesc motywu z motywem z 
-						//prawej?
-						//jak sparsowaæ se now¹ czesc motywu z motywem?
-						// tutaj for porównuj¹cy aktuany motyw(ale tylko rozmiar okna) z dodawanym  podci¹giem
-						// to samo z prawej strony
-						// jak sie nic nie zgadza no to dodajesz ca³y
 						cout << arg_max << endl;
 						right.clear();
 
@@ -590,25 +546,66 @@ int main()
 					right_side = false;
 				}
 			
-
-
+				
 		}
+		if (!(std::find(results.begin(), results.end(), act_mot) != results.end())) 
+		{
+			results.push_back(act_mot);
+		}
+		
+		graph_sorted.erase(graph_sorted.begin());
+		nres++;
 
-
-		cout << "********* ACT **************" << act_mot << endl;
-		system("pause");
-		return 0;
+		
 	}
+
+	compare comp;
+
+	sort(results.begin(), results.end(), comp);
+
+	for (int i = 0; i < results.size(); i++)
+	{
+		cout << results[i] << endl;
+	}
+	//cout << results[i] << endl;
+	cout << endl;
+	int best_c = 1;
+	if (results.size() > 0 && results[0].length() == results[1].length())
+	{
+		for (int i = 1; i < results.size(); i++)
+		{
+			if (results[i].length() == results[i - 1].length()) best_c++;
+		}
+	}
+
+
+	cout << "Sekwencje z delcjami zawierajace motyw:" << endl;
+	cout << endl;
+
+	for (int j = 0; j < best_c; j++)
+	{
+		for (int i = 0; i < inputs.size(); i++)
+		{
+			cout << inputs[i].input_id << endl;
+			if (inputs[i].sequence_with_del.find(results[j]) != string::npos)
+			{
+				string seq_part_1 = inputs[i].sequence_with_del.substr(0, inputs[i].sequence_with_del.find(results[j]));
+				string seq_part_2 = inputs[i].sequence_with_del.substr(inputs[i].sequence_with_del.find(results[j]) + results[j].length(), inputs[i].sequence_with_del.length());
+				cout << seq_part_1;
+				SetConsoleTextAttribute(hConsole, 2);
+				cout << results[j];
+				SetConsoleTextAttribute(hConsole, 7);
+				cout << seq_part_2;
+				cout << endl;
+			}
+			else cout << inputs[i].sequence_with_del << endl;
+		}
+		cout << endl;
+	}
+	
+
+	system("pause");
+	return 0;
 }
-//wierzcholek z najwieksz¹ liczba sasiadow jako pocz¹tek kliki
-//pierwszy s¹siad tez do kliki
-/*pierwszy sasiad tego sasiada wyzej taki co jest rozny od obecnych w klice  ,
-trzeba sprawdziæ czy on ma na liscie s¹siadów tych wierzcholkow co sa juz w klice*/
 
-//jak ma to do kliki
-
-//czy klike budowaæ na podstawie tej samej co graf ( string w stringu) ????
-
-//warunek zakonczenia ? jak przejdziemy liste sasiadow tego pierwszego?
-//to sie troche prosi o rekurencje ale nwm 
 
