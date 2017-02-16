@@ -85,7 +85,7 @@ vector<Input> load_instance()
 				string num = "";
 				int i = 0;
 				
-				while (i < line2.size() - 1)
+				while (i < line2.size() )
 				{
 					if (line2[i] == ' ')
 					{
@@ -127,7 +127,7 @@ vector<Sequence> load_seqs(vector<Input> instances, int len , int minimal)//w ma
 		int sequence_index = 0;
 		string sequence = temp.whole_sequence;
 		vector<int> scores = temp.quals;
-		for (int i = 0; i <= sequence.size() - len - 1 ; i++)
+		for (int i = 0; i <= sequence.size() - len  ; i++)
 		{	
 			//cout << sequence.size() - len << endl;
 			Sequence loaded;
@@ -154,7 +154,7 @@ vector<Sequence> load_seqs(vector<Input> instances, int len , int minimal)//w ma
 					//else if(ite)
 					else
 					{
-						loaded_seq += sequence[i];
+						loaded_seq += sequence[iter];
 						//cout << len_help << endl;
 
 						len_help++;
@@ -185,6 +185,12 @@ vector<Sequence> load_seqs(vector<Input> instances, int len , int minimal)//w ma
 				loaded.start_pos = start_pos;
 				loaded.end_pos = end_pos;
 				seqs.push_back(loaded);
+				//if (loaded_seq == "TTTTTTT")
+				//{
+					cout << loaded.id << endl;
+					cout << sequence_index << endl;
+					cout << loaded_seq << endl;
+				//}
 			}
 
 		
@@ -462,6 +468,7 @@ int main()
 							if (i == 0)
 							{
 								act_mot = arg_max + act_mot;
+								cout << act_mot << endl;
 							}
 
 							string submotif_sub = arg_max.substr(i,arg_max.length());
@@ -469,6 +476,7 @@ int main()
 							if (submotif_sub == motif_sub)
 							{
 								act_mot = arg_max.substr(0,i) + act_mot;
+								cout << act_mot << endl;
 								break;
 							}
 
@@ -541,20 +549,25 @@ int main()
 							}
 						}
 
-						for (int i = windowsize; i >= 0; i--)
+						for (int i = windowsize; i >= 0 ; i--)
 						{
 							if (i == 0)
 							{
 								act_mot = act_mot + arg_max.substr(i,arg_max.length()) ;
+								cout << act_mot <<"ca³osc"<< endl;
 							}
 							//string submotif_sub = arg_max.substr(i, arg_max.length());
 							//string motif_sub = act_mot.substr(0, arg_max.length() - i);
+						
+							int test = arg_max.length();
 
 							string submotif_sub = arg_max.substr(0, arg_max.length() - i );
 							string motif_sub = act_mot.substr( act_mot.length() - (arg_max.length() - i), act_mot.length());
+		
 							if (submotif_sub == motif_sub)
 							{
-								act_mot =  act_mot + arg_max;
+								act_mot =  act_mot + arg_max.substr(arg_max.length() - i);
+								cout << act_mot << endl;
 								break;
 							}
 

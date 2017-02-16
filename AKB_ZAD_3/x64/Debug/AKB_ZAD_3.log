@@ -1,4 +1,5 @@
 ﻿  AKB_ZAD_3.cpp
-c:\users\piotr\source\repos\akb-3.1\akb_zad_3\akb_zad_3.cpp(412): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
-  AKB_ZAD_3.vcxproj -> C:\Users\Piotr\Source\Repos\AKB-3.1\x64\Debug\AKB_ZAD_3.exe
-  AKB_ZAD_3.vcxproj -> C:\Users\Piotr\Source\Repos\AKB-3.1\x64\Debug\AKB_ZAD_3.pdb (Full PDB)
+c:\users\pete\source\repos\akb-3.1\akb_zad_3\akb_zad_3.cpp(418): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+c:\users\pete\source\repos\akb-3.1\akb_zad_3\akb_zad_3.cpp(562): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+  AKB_ZAD_3.vcxproj -> C:\Users\Pete\Source\Repos\AKB-3.1\x64\Debug\AKB_ZAD_3.exe
+  AKB_ZAD_3.vcxproj -> C:\Users\Pete\Source\Repos\AKB-3.1\x64\Debug\AKB_ZAD_3.pdb (Full PDB)
