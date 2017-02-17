@@ -3,7 +3,7 @@
 
 #include "stdafx.h"
 
-//TEST!!!!!!
+//FUNKCJE
 
 
 
@@ -13,14 +13,16 @@ vector<Input> load_instance()
 	vector<Input> inputs;
 	fstream inp_file;
 	fstream inp_file2;
-	string open_file = "002";
+	string open_file; 
 	string open_fasta;
 	string open_qual;
 	string line;
 	string line2;
 	string seq_line = "";
 	int x = 0;
-	cout << "Please type the instance name: ";
+	
+	cout << "Prosze podac nazwe pliku: ";
+	cin >> open_file;
 	open_fasta = open_file + ".fasta";
 	open_qual = open_file + ".qual";
 	inp_file.open(open_fasta);
@@ -28,7 +30,8 @@ vector<Input> load_instance()
 	Input inp1;
 	if (inp_file.good())
 	{
-		cout << "File was opened correctly." << endl;
+		cout << endl;
+		cout << "Plik otwarty poprawnie" << endl;
 		while (getline(inp_file, line))
 		{
 			if (line[0] == '>')
@@ -40,14 +43,13 @@ vector<Input> load_instance()
 				if (seq_line == "")
 				{
 					seq_line = line;
-					cout << inp1.input_id << line << endl;
+					cout << inp1.input_id << " "<< line << endl;
 				}
 				else
 				{
 					cout << line << endl;
 					seq_line += line;
 					inp1.whole_sequence = seq_line;
-					//cout << inp1.input_id << inp1.whole_sequence << endl;
 					inputs.push_back(inp1);
 					seq_line = "";
 				}
@@ -60,10 +62,9 @@ vector<Input> load_instance()
 	}
 	else
 	{
-		cout << "Error! Can't open .fasta file." << endl;
+		cout << "Problem z otwieraniem pliku .fasta " << endl;
 		system("pause");
 	}
-	//cout << inputs.size() << "size" << endl;
 	if (inp_file2.good())
 	{
 
@@ -75,7 +76,7 @@ vector<Input> load_instance()
 
 				if (line2 != inputs[x].input_id)
 				{
-					cout << line2 << "Error! .fasta does not match .qual file." << endl;
+					cout << line2 << "Plik  .fasta  nie pasuje do pliku .qual " << endl;
 					cout << inputs[x].input_id << endl;;
 					cout << " " << x;
 					system("pause");
@@ -110,15 +111,14 @@ vector<Input> load_instance()
 	}
 	else
 	{
-		cout << "Error with opening .qual file" << endl;
+		cout << "Problem z otwieraniem pliku  .qual " << endl;
 	}
-	//cout << inputs.size() << endl;
-
+	
 
 	return inputs;
 
 }
-vector<Sequence> load_seqs(vector<Input> instances, int len , int minimal)//w mainie musi byæ coœ równa siê tej funkcji
+vector<Sequence> load_seqs(vector<Input> instances, int len , int minimal , int deletions)
 {
 	vector<Sequence> seqs;
 	Input temp;
@@ -131,7 +131,6 @@ vector<Sequence> load_seqs(vector<Input> instances, int len , int minimal)//w ma
 		vector<int> scores = temp.quals;
 		for (int i = 0; i <= sequence.size() - len  ; i++)
 		{	
-			//cout << sequence.size() - len << endl;
 			Sequence loaded;
 			string loaded_seq = "";
 			int len_help = 0;
@@ -147,18 +146,12 @@ vector<Sequence> load_seqs(vector<Input> instances, int len , int minimal)//w ma
 					{
 						start_pos = iter;
 						loaded_seq += sequence[iter];
-						//cout << len_help << endl;
-
 						len_help++;
-						//end_pos;
 						iter++;
 					}
-					//else if(ite)
 					else
 					{
 						loaded_seq += sequence[iter];
-						//cout << len_help << endl;
-
 						len_help++;
 						end_pos = i;
 						iter++;
@@ -168,18 +161,16 @@ vector<Sequence> load_seqs(vector<Input> instances, int len , int minimal)//w ma
 				else // jak score za ma³y
 				{
 					too_low++;
-					//cout << len_help << endl;
 					len_help++;
 					iter++;
 					
 				}
 				
 			}
-			if (too_low < len / 2)
+			if (too_low < deletions)//dopuszczalna liczba delecji
 			{
 				loaded.index_inseq = sequence_index;
-				sequence_index++;// czy to cos da? bo w sumie to mo¿na sie przesuwaæ po ca³osci o jeden ale chyba da bo jak tu bedzie 0 to nie bedziesz potem jechal w lewo np
-				//potem mozna sprawdzac jesli chodzi o prawo ze czy nastepna to koniec listy calosci lub 0 po prawej czyli koniec sekwencji
+				sequence_index++;
 				loaded.index_inall = allindex;
 				allindex++;
 				loaded.id = temp.input_id;
@@ -187,12 +178,11 @@ vector<Sequence> load_seqs(vector<Input> instances, int len , int minimal)//w ma
 				loaded.start_pos = start_pos;
 				loaded.end_pos = end_pos;
 				seqs.push_back(loaded);
-				//if (loaded_seq == "TTTTTTT")
-				//{
-					cout << loaded.id << endl;
+				
+					/*cout << loaded.id << endl;
 					cout << sequence_index << endl;
-					cout << loaded_seq << endl;
-				//}
+					cout << loaded_seq << endl;*/
+				
 			}
 
 		
@@ -205,7 +195,7 @@ return seqs;
 
 
 
-vector<Vertex> load_graph(vector<Sequence> Seqs)//to raczej bêdzie vector i przepisanie na jakiœ vector w mainie
+vector<Vertex> load_graph(vector<Sequence> Seqs)
 {
 	int id = 0;
 	vector<Vertex> Graph;
@@ -228,11 +218,11 @@ vector<Vertex> load_graph(vector<Sequence> Seqs)//to raczej bêdzie vector i prze
 		{
 			if (itt != it)
 			{
-				if ((Graph[it].nucleos.find(Graph[itt].nucleos) != std::string::npos) && Graph[it].id != Graph[itt].id)//jesli sekwencja zawiera sie w drugiej i s¹ z innych id
+				if ((Graph[it].nucleos.find(Graph[itt].nucleos) != std::string::npos) && Graph[it].id != Graph[itt].id)//jesli podciag zawiera sie w drugim i s¹ z innych sek
 				{
-					//cout << "som takie same xD" << endl;
+					
 
-					if (!(find(Graph[it].neighbours.begin(), Graph[it].neighbours.end(), Graph[itt].vert_id) != Graph[it].neighbours.end()) &&// jesli jest juz takie s¹siedztwo
+					if (!(find(Graph[it].neighbours.begin(), Graph[it].neighbours.end(), Graph[itt].vert_id) != Graph[it].neighbours.end()) &&// jesli nie ma jeszcze takiego sasiedztwa
 						!(find(Graph[itt].neighbours.begin(), Graph[itt].neighbours.end(), Graph[it].vert_id) != Graph[itt].neighbours.end()))
 					{
 						Graph[itt].neighbours.push_back(Graph[it].vert_id);
@@ -259,7 +249,7 @@ vector<Vertex> find_clique(vector<Vertex> vertexes_set)
 		{
 			Clique.push_back(vertexes_set[i]);// dodaje se pierwszy z posortowanej listy po najwiekszym stopniu verta
 		}
-		else//tu zagadka jakaœ pomocnicza lista dodanych i tam patrzymy czy s¹siady czy jak?
+		else
 		{
 			int analyzed_id = vertexes_set[i].vert_id;
 			int check_counter = 0;
@@ -269,7 +259,7 @@ vector<Vertex> find_clique(vector<Vertex> vertexes_set)
 				{//jeœli jest s¹siadem jednego z cz³onków kliki
 					check_counter++;
 				}
-				if (check_counter == Clique.size())//jak znajduje sie w s¹siedztwie wszystkich cz³onków kliki
+				if (check_counter == Clique.size())//jak znajduje sie w s¹siedztwie wszystkich aktualnych cz³onków kliki
 				{
 					Clique.push_back(vertexes_set[i]);
 					break;
@@ -300,18 +290,26 @@ int main()
 	vector<Vertex> graph;
 	vector<Vertex> graph_sorted;
 	vector<string> results;
+	
 	int substr_len;
 	int minimal_score;
-	//Input inpp =  new Input;
+	int deletions;
+	
 
-	//cout << inputs.size()<<endl;
-	/*for (int i = 0; i < inputs.size(); i++)
-	{
-		cout << inputs[i].input_id<<endl;
-		cout << inputs[i].whole_sequence << endl;
-	}*/
+
 	cout << "Prosze podac minimalny qual: ";
-	cin >> minimal_score;
+	while (true)
+	{
+		cin >> minimal_score;
+		if (minimal_score < 1 )
+		{
+			cout << endl;
+			cout << "Prosze podac qual wiekszy niz 0" << endl;
+			cin >> minimal_score;
+		}
+		else break;
+	}
+	
 	cout << endl;
 	cout << "Prosze podac dlugosc podciagow (4-7): ";
 	while (true)
@@ -319,11 +317,31 @@ int main()
 		cin >> substr_len;
 		if (substr_len < 4 || substr_len > 7)
 		{
+			cout << endl;
 			cout << "Prosze podac prawidlowa dlugosc podciagow(4-7)" << endl;
+			cin >> substr_len;
 		}
 		else break;
 	}
+	cout << endl;
+	
+	cout << "Prosze podac liczbe dopuszczonych delecji w podciagu( conajmniej 1/2 dlugosci podciagu): ";
+	while (true)
+	{
+		cout << endl;
+		cin >> deletions;
+		if (deletions > substr_len/2)
+		{
+			cout << "Prosze podac prawidlowa dlugosc delecji" << endl;
+			cin >> deletions;
+		}
+		else break;
+	}
+
+
 	inputs = load_instance();
+
+	//TWORZENIE SEKWENCJI SKROCONYCH O DELECJE
 
 	for (int it = 0; it < inputs.size(); it++)
 	{
@@ -340,7 +358,7 @@ int main()
 	
 
 
-	graph_sequences = load_seqs(inputs, substr_len,  minimal_score);
+	graph_sequences = load_seqs(inputs, substr_len,  minimal_score , deletions);
 	graph = load_graph(graph_sequences);
 	graph_sorted = graph;
 	sort(graph_sorted.begin(), graph_sorted.end());
@@ -350,8 +368,8 @@ int main()
 	string act_mot;
 	int nres = 0;
 	int maxres = 6;
-	int windowsize = 1;//substr_len / 2;
-	while (nres < maxres)//ile motywowow chcemy miec
+	int windowsize = 4;//substr_len / 2;
+	while (nres < maxres)//ilu motywow szukac
 	{
 		vector<Vertex> StartClique = find_clique(graph_sorted);
 		vector<Vertex> StartCliqueR = StartClique;
@@ -379,17 +397,19 @@ int main()
 			}
 		}
 		act_mot = main_arg_max;
-		cout << main_arg_max << endl;
+		//cout << main_arg_max << endl;
+
+
 		int past_len = act_mot.length();
 		vector<Vertex> TempClique;
 		bool left_side = true;
 		bool right_side = true;
 		
 		
+		//ROZSZERZANIE W LEWO
 		
-		while (left_side)// ti warunek zakonczenia rozszerzenia w lewo czyli dla wszystkich jak ju¿nie mo¿na
+		while (left_side)
 		{
-			cout << "rozszerzanie w lewo" << endl;
 			vector<Vertex> left;
 			for (int i = 0; i < StartClique.size(); i++)
 			{
@@ -402,7 +422,7 @@ int main()
 			}
 				if (left.size() > 2)//jeœli jest sens szukaæ kliki
 				{
-					TempClique = find_clique(left);//szukamy kliki , nie trzeba czyscic
+					TempClique = find_clique(left);
 					if (TempClique.size() > 2)
 					{
 						StartClique = TempClique;
@@ -433,7 +453,7 @@ int main()
 							if (i == 0)
 							{
 								act_mot = arg_max + act_mot;
-								cout << act_mot << endl;
+								//cout << act_mot << endl;
 							}
 
 							string submotif_sub = arg_max.substr(i,arg_max.length());
@@ -441,13 +461,12 @@ int main()
 							if (submotif_sub == motif_sub)
 							{
 								act_mot = arg_max.substr(0,i) + act_mot;
-								cout << act_mot << endl;
+								//cout << act_mot << endl;
 								break;
 							}
 
 						}
-						cout << arg_max << endl;
-
+						
 						
 
 					}
@@ -460,28 +479,27 @@ int main()
 
 			
 		}
-		TempClique.clear();//czyscimy ze smieci z lewa
+		
+		
+		TempClique.clear();
 		StartClique = StartCliqueR;
 		
+		//ROZSZERZANIE W PRAWO
 		
-		
-		while (right_side)// tu warunek zakonczenia rozszerzenia w prawo czyli albo za ma³a klika z tych z prawej albo konce sekwencji tych z prawej czyli e albo next w ca³ym grafie jest zerem
-			//albo next wiekszy niz rozmiar vectora grafu
+		while (right_side)
 		{
-			cout << "rozszerzanie w prawo" << endl;
 			vector<Vertex> right;
 			for (int i = 0; i < StartClique.size(); i++)
 			{
 				if (StartClique[i].index_inall + windowsize < graph.size() && StartClique[i].id == graph[ StartClique[i].index_inall + windowsize ].id )
 				{
-					int right_ind = StartClique[i].index_inall + windowsize;// plus jeden czy plus wincyj?
+					int right_ind = StartClique[i].index_inall + windowsize;
 					right.push_back(graph[right_ind]);
 
 				}
 			}
 				if (right.size() > 2)//jeœli jest sens szukaæ kliki
 				{
-					//cout << "jest sens" << endl;
 					TempClique = find_clique(right);//szukamy kliki
 					if (TempClique.size() > 2)
 					{
@@ -499,11 +517,9 @@ int main()
 								rightoccurance[TempClique[v].nucleos]++;
 							}
 						}
-						/*auto most = max_element(occurance.begin(), occurance.end(),
-						[](const pair<string, int>& p1, const pair<int, int>& p2) {
-						return p1.second < p2.second; });*/
 						int currentMax = 0;
 						string arg_max = "";
+
 						for (auto it = rightoccurance.cbegin(); it != rightoccurance.cend(); ++it)
 						{
 							if (it->second > currentMax) {
@@ -518,9 +534,7 @@ int main()
 							{
 								act_mot = act_mot + arg_max.substr(i,arg_max.length()) ;
 							}
-							//string submotif_sub = arg_max.substr(i, arg_max.length());
-							//string motif_sub = act_mot.substr(0, arg_max.length() - i);
-						
+							
 							int test = arg_max.length();
 
 							string submotif_sub = arg_max.substr(0, arg_max.length() - i );
@@ -529,13 +543,12 @@ int main()
 							if (submotif_sub == motif_sub)
 							{
 								act_mot =  act_mot + arg_max.substr(arg_max.length() - i);
-								cout << act_mot << endl;
+								//cout << act_mot << endl;
 								break;
 							}
 
 						}
 
-						cout << arg_max << endl;
 						right.clear();
 
 					}
@@ -566,24 +579,31 @@ int main()
 	for (int i = 0; i < results.size(); i++)
 	{
 		cout << results[i] << endl;
+
 	}
 	//cout << results[i] << endl;
 	cout << endl;
 	int best_c = 1;
-	if (results.size() > 0 && results[0].length() == results[1].length())
+	if (results.size() > 1 && results[0].length() == results[1].length())
 	{
 		for (int i = 1; i < results.size(); i++)
 		{
-			if (results[i].length() == results[i - 1].length()) best_c++;
+			if (results[i].length() == results[0].length()) best_c++;
 		}
 	}
 
 
-	cout << "Sekwencje z delcjami zawierajace motyw:" << endl;
+	cout << "Sekwencje z delcjami zawierajace motyw(y):" << endl;
 	cout << endl;
 
 	for (int j = 0; j < best_c; j++)
 	{
+		cout << endl;
+		cout << results[j] << endl;
+		cout << endl;
+		cout <<results[j].length()<< endl;
+		cout << endl;
+
 		for (int i = 0; i < inputs.size(); i++)
 		{
 			cout << inputs[i].input_id << endl;
