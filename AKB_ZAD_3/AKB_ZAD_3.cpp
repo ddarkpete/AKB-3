@@ -273,6 +273,269 @@ vector<Vertex> find_clique(vector<Vertex> vertexes_set)
 	return Clique;
 }
 
+void motif_searcher(vector<Vertex> graph_sorted, vector<Vertex> graph , vector<Input> inputs)
+{
+	string act_mot;
+	int nres = 0;
+	int maxres = 6;
+	int windowsize = 4;//substr_len / 2;
+
+	vector<string> results;
+
+	while (nres < maxres)//ilu motywow szukac
+	{
+		vector<Vertex> StartClique = find_clique(graph_sorted);
+		vector<Vertex> StartCliqueR = StartClique;
+		map<string, int > main_occurance;
+		for (int v = 0; v < StartClique.size(); v++)
+		{
+			if (main_occurance.count(StartClique[v].nucleos) > 0)
+			{
+				main_occurance[StartClique[v].nucleos]++;
+			}
+			else
+			{
+				main_occurance[StartClique[v].nucleos];//incjalizacja
+				main_occurance[StartClique[v].nucleos]++;
+			}
+		}
+		int main_currentMax = 0;
+		string main_arg_max = "";
+
+		for (auto it = main_occurance.cbegin(); it != main_occurance.cend(); ++it)
+		{
+			if (it->second > main_currentMax) {
+				main_arg_max = it->first;
+				main_currentMax = it->second;
+			}
+		}
+		act_mot = main_arg_max;
+		//cout << main_arg_max << endl;
+
+
+		int past_len = act_mot.length();
+		vector<Vertex> TempClique;
+		bool left_side = true;
+		bool right_side = true;
+
+
+		//ROZSZERZANIE W LEWO
+
+		while (left_side)
+		{
+			vector<Vertex> left;
+			for (int i = 0; i < StartClique.size(); i++)
+			{
+				if (StartClique[i].index_inall - windowsize >= 0 && StartClique[i].id == graph[StartClique[i].index_inall - windowsize].id)
+				{
+					int left_ind = StartClique[i].index_inall - windowsize;
+					left.push_back(graph[left_ind]);
+
+				}
+			}
+			if (left.size() > 2)//jeœli jest sens szukaæ kliki
+			{
+				TempClique = find_clique(left);
+				if (TempClique.size() > 2)
+				{
+					StartClique = TempClique;
+					map<string, int > occurance;
+					for (int v = 0; v < TempClique.size(); v++)
+					{
+						if (occurance.count(TempClique[v].nucleos) > 0)
+						{
+							occurance[TempClique[v].nucleos]++;
+						}
+						else
+						{
+							occurance[TempClique[v].nucleos];//incjalizacja
+							occurance[TempClique[v].nucleos]++;
+						}
+					}
+					int currentMax = 0;
+					string arg_max = "";
+					for (auto it = occurance.cbegin(); it != occurance.cend(); ++it)
+					{
+						if (it->second > currentMax) {
+							arg_max = it->first;
+							currentMax = it->second;
+						}
+					}
+					for (int i = windowsize; i >= 0; i--)
+					{
+						if (i == 0)
+						{
+							act_mot = arg_max + act_mot;
+							//cout << act_mot << endl;
+						}
+
+						string submotif_sub = arg_max.substr(i, arg_max.length());
+						string motif_sub = act_mot.substr(0, arg_max.length() - i);
+						if (submotif_sub == motif_sub)
+						{
+							act_mot = arg_max.substr(0, i) + act_mot;
+							//cout << act_mot << endl;
+							break;
+						}
+
+					}
+
+
+
+				}
+				else left_side = false;
+			}
+			else
+			{
+				left_side = false;
+			}
+
+
+		}
+
+
+		TempClique.clear();
+		StartClique = StartCliqueR;
+
+		//ROZSZERZANIE W PRAWO
+
+		while (right_side)
+		{
+			vector<Vertex> right;
+			for (int i = 0; i < StartClique.size(); i++)
+			{
+				if (StartClique[i].index_inall + windowsize < graph.size() && StartClique[i].id == graph[StartClique[i].index_inall + windowsize].id)
+				{
+					int right_ind = StartClique[i].index_inall + windowsize;
+					right.push_back(graph[right_ind]);
+
+				}
+			}
+			if (right.size() > 2)//jeœli jest sens szukaæ kliki
+			{
+				TempClique = find_clique(right);//szukamy kliki
+				if (TempClique.size() > 2)
+				{
+					StartClique = TempClique;
+					map<string, int > rightoccurance;
+					for (int v = 0; v < TempClique.size(); v++)
+					{
+						if (rightoccurance.count(TempClique[v].nucleos) > 0)
+						{
+							rightoccurance[TempClique[v].nucleos]++;
+						}
+						else
+						{
+							rightoccurance[TempClique[v].nucleos];//incjalizacja
+							rightoccurance[TempClique[v].nucleos]++;
+						}
+					}
+					int currentMax = 0;
+					string arg_max = "";
+
+					for (auto it = rightoccurance.cbegin(); it != rightoccurance.cend(); ++it)
+					{
+						if (it->second > currentMax) {
+							arg_max = it->first;
+							currentMax = it->second;
+						}
+					}
+
+					for (int i = windowsize; i >= 0; i--)
+					{
+						if (i == 0)
+						{
+							act_mot = act_mot + arg_max.substr(i, arg_max.length());
+						}
+
+						int test = arg_max.length();
+
+						string submotif_sub = arg_max.substr(0, arg_max.length() - i);
+						string motif_sub = act_mot.substr(act_mot.length() - (arg_max.length() - i), act_mot.length());
+
+						if (submotif_sub == motif_sub)
+						{
+							act_mot = act_mot + arg_max.substr(arg_max.length() - i);
+							//cout << act_mot << endl;
+							break;
+						}
+
+					}
+
+					right.clear();
+
+				}
+				else right_side = false;
+			}
+			else
+			{
+				right_side = false;
+			}
+
+
+		}
+		if (!(std::find(results.begin(), results.end(), act_mot) != results.end()))
+		{
+			results.push_back(act_mot);
+		}
+
+		graph_sorted.erase(graph_sorted.begin());
+		nres++;
+
+
+	}
+
+	compare comp;
+
+	sort(results.begin(), results.end(), comp);
+
+	for (int i = 0; i < results.size(); i++)
+	{
+		cout << results[i] << endl;
+
+	}
+	//cout << results[i] << endl;
+	cout << endl;
+	int best_c = 1;
+	if (results.size() > 1 && results[0].length() == results[1].length())
+	{
+		for (int i = 1; i < results.size(); i++)
+		{
+			if (results[i].length() == results[0].length()) best_c++;
+		}
+	}
+
+
+	cout << "Sekwencje z delcjami zawierajace motyw(y):" << endl;
+	cout << endl;
+
+	for (int j = 0; j < best_c; j++)
+	{
+		cout << endl;
+		cout << results[j] << endl;
+		cout << endl;
+		cout << results[j].length() << endl;
+		cout << endl;
+
+		for (int i = 0; i < inputs.size(); i++)
+		{
+			cout << inputs[i].input_id << endl;
+			if (inputs[i].sequence_with_del.find(results[j]) != string::npos)
+			{
+				string seq_part_1 = inputs[i].sequence_with_del.substr(0, inputs[i].sequence_with_del.find(results[j]));
+				string seq_part_2 = inputs[i].sequence_with_del.substr(inputs[i].sequence_with_del.find(results[j]) + results[j].length(), inputs[i].sequence_with_del.length());
+				cout << seq_part_1;
+				SetConsoleTextAttribute(hConsole, 2);
+				cout << results[j];
+				SetConsoleTextAttribute(hConsole, 7);
+				cout << seq_part_2;
+				cout << endl;
+			}
+			else cout << inputs[i].sequence_with_del << endl;
+		}
+		cout << endl;
+	}
+}
 
 struct compare {
 	bool operator()(const std::string& first, const std::string& second) {
@@ -289,8 +552,8 @@ int main()
 	vector<Sequence> graph_sequences;
 	vector<Vertex> graph;
 	vector<Vertex> graph_sorted;
-	vector<string> results;
 	
+
 	int substr_len;
 	int minimal_score;
 	int deletions;
@@ -362,266 +625,11 @@ int main()
 	graph = load_graph(graph_sequences);
 	graph_sorted = graph;
 	sort(graph_sorted.begin(), graph_sorted.end());
+	motif_searcher(graph_sorted, graph, inputs);
 
 
 	
-	string act_mot;
-	int nres = 0;
-	int maxres = 6;
-	int windowsize = 4;//substr_len / 2;
-	while (nres < maxres)//ilu motywow szukac
-	{
-		vector<Vertex> StartClique = find_clique(graph_sorted);
-		vector<Vertex> StartCliqueR = StartClique;
-		map<string, int > main_occurance;
-		for (int v = 0; v < StartClique.size(); v++)
-		{
-			if (main_occurance.count(StartClique[v].nucleos) > 0)
-			{
-				main_occurance[StartClique[v].nucleos]++;
-			}
-			else
-			{
-				main_occurance[StartClique[v].nucleos];//incjalizacja
-				main_occurance[StartClique[v].nucleos]++;
-			}
-		}
-		int main_currentMax = 0;
-		string main_arg_max = "";
-
-		for (auto it = main_occurance.cbegin(); it != main_occurance.cend(); ++it)
-		{
-			if (it->second > main_currentMax) {
-				main_arg_max = it->first;
-				main_currentMax = it->second;
-			}
-		}
-		act_mot = main_arg_max;
-		//cout << main_arg_max << endl;
-
-
-		int past_len = act_mot.length();
-		vector<Vertex> TempClique;
-		bool left_side = true;
-		bool right_side = true;
-		
-		
-		//ROZSZERZANIE W LEWO
-		
-		while (left_side)
-		{
-			vector<Vertex> left;
-			for (int i = 0; i < StartClique.size(); i++)
-			{
-				if (StartClique[i].index_inall - windowsize >= 0 && StartClique[i].id == graph[StartClique[i].index_inall - windowsize].id)
-				{
-					int left_ind = StartClique[i].index_inall - windowsize;
-					left.push_back(graph[left_ind]);
-
-				}
-			}
-				if (left.size() > 2)//jeœli jest sens szukaæ kliki
-				{
-					TempClique = find_clique(left);
-					if (TempClique.size() > 2)
-					{
-						StartClique = TempClique;
-						map<string, int > occurance;
-						for (int v = 0; v < TempClique.size(); v++)
-						{
-							if (occurance.count(TempClique[v].nucleos) > 0)
-							{
-								occurance[TempClique[v].nucleos]++;
-							}
-							else
-							{
-								occurance[TempClique[v].nucleos];//incjalizacja
-								occurance[TempClique[v].nucleos]++;
-							}
-						}
-						int currentMax = 0;
-						string arg_max = "";
-						for (auto it = occurance.cbegin(); it != occurance.cend(); ++it)
-						{
-							if (it->second > currentMax) {
-								arg_max = it->first;
-								currentMax = it->second;
-							}
-						}
-						for (int i = windowsize; i >= 0; i--)
-						{
-							if (i == 0)
-							{
-								act_mot = arg_max + act_mot;
-								//cout << act_mot << endl;
-							}
-
-							string submotif_sub = arg_max.substr(i,arg_max.length());
-							string motif_sub = act_mot.substr(0,arg_max.length() - i);
-							if (submotif_sub == motif_sub)
-							{
-								act_mot = arg_max.substr(0,i) + act_mot;
-								//cout << act_mot << endl;
-								break;
-							}
-
-						}
-						
-						
-
-					}
-					else left_side = false;
-				}
-				else
-				{
-					left_side = false;
-				}
-
-			
-		}
-		
-		
-		TempClique.clear();
-		StartClique = StartCliqueR;
-		
-		//ROZSZERZANIE W PRAWO
-		
-		while (right_side)
-		{
-			vector<Vertex> right;
-			for (int i = 0; i < StartClique.size(); i++)
-			{
-				if (StartClique[i].index_inall + windowsize < graph.size() && StartClique[i].id == graph[ StartClique[i].index_inall + windowsize ].id )
-				{
-					int right_ind = StartClique[i].index_inall + windowsize;
-					right.push_back(graph[right_ind]);
-
-				}
-			}
-				if (right.size() > 2)//jeœli jest sens szukaæ kliki
-				{
-					TempClique = find_clique(right);//szukamy kliki
-					if (TempClique.size() > 2)
-					{
-						StartClique = TempClique;
-						map<string, int > rightoccurance;
-						for (int v = 0; v < TempClique.size(); v++)
-						{
-							if (rightoccurance.count(TempClique[v].nucleos) > 0)
-							{
-								rightoccurance[TempClique[v].nucleos]++;
-							}
-							else
-							{
-								rightoccurance[TempClique[v].nucleos];//incjalizacja
-								rightoccurance[TempClique[v].nucleos]++;
-							}
-						}
-						int currentMax = 0;
-						string arg_max = "";
-
-						for (auto it = rightoccurance.cbegin(); it != rightoccurance.cend(); ++it)
-						{
-							if (it->second > currentMax) {
-								arg_max = it->first;
-								currentMax = it->second;
-							}
-						}
-
-						for (int i = windowsize; i >= 0 ; i--)
-						{
-							if (i == 0)
-							{
-								act_mot = act_mot + arg_max.substr(i,arg_max.length()) ;
-							}
-							
-							int test = arg_max.length();
-
-							string submotif_sub = arg_max.substr(0, arg_max.length() - i );
-							string motif_sub = act_mot.substr( act_mot.length() - (arg_max.length() - i), act_mot.length());
-		
-							if (submotif_sub == motif_sub)
-							{
-								act_mot =  act_mot + arg_max.substr(arg_max.length() - i);
-								//cout << act_mot << endl;
-								break;
-							}
-
-						}
-
-						right.clear();
-
-					}
-					else right_side = false;
-				}
-				else
-				{
-					right_side = false;
-				}
-			
-				
-		}
-		if (!(std::find(results.begin(), results.end(), act_mot) != results.end())) 
-		{
-			results.push_back(act_mot);
-		}
-		
-		graph_sorted.erase(graph_sorted.begin());
-		nres++;
-
-		
-	}
-
-	compare comp;
-
-	sort(results.begin(), results.end(), comp);
-
-	for (int i = 0; i < results.size(); i++)
-	{
-		cout << results[i] << endl;
-
-	}
-	//cout << results[i] << endl;
-	cout << endl;
-	int best_c = 1;
-	if (results.size() > 1 && results[0].length() == results[1].length())
-	{
-		for (int i = 1; i < results.size(); i++)
-		{
-			if (results[i].length() == results[0].length()) best_c++;
-		}
-	}
-
-
-	cout << "Sekwencje z delcjami zawierajace motyw(y):" << endl;
-	cout << endl;
-
-	for (int j = 0; j < best_c; j++)
-	{
-		cout << endl;
-		cout << results[j] << endl;
-		cout << endl;
-		cout <<results[j].length()<< endl;
-		cout << endl;
-
-		for (int i = 0; i < inputs.size(); i++)
-		{
-			cout << inputs[i].input_id << endl;
-			if (inputs[i].sequence_with_del.find(results[j]) != string::npos)
-			{
-				string seq_part_1 = inputs[i].sequence_with_del.substr(0, inputs[i].sequence_with_del.find(results[j]));
-				string seq_part_2 = inputs[i].sequence_with_del.substr(inputs[i].sequence_with_del.find(results[j]) + results[j].length(), inputs[i].sequence_with_del.length());
-				cout << seq_part_1;
-				SetConsoleTextAttribute(hConsole, 2);
-				cout << results[j];
-				SetConsoleTextAttribute(hConsole, 7);
-				cout << seq_part_2;
-				cout << endl;
-			}
-			else cout << inputs[i].sequence_with_del << endl;
-		}
-		cout << endl;
-	}
+	
 	
 
 	system("pause");
